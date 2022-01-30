@@ -3326,6 +3326,11 @@ currently-unhandled@^0.4.1:
   dependencies:
     array-find-index "^1.0.1"
 
+cutil@^1.1.22:
+  version "1.1.22"
+  resolved "https://registry.npmmirror.com/cutil/download/cutil-1.1.22.tgz#7185e8bd277146126e3b46dbe8f954b679fdc07a"
+  integrity sha1-cYXovSdxRhJuO0bb6PlUtnn9wHo=
+
 cyclist@^1.0.1:
   version "1.0.1"
   resolved "https://registry.nlark.com/cyclist/download/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
