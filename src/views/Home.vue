@@ -42,17 +42,26 @@ export default defineComponent({
 
             document.body.appendChild(VRButton.createButton(renderer));
 
-            function onSelectStart() {
+            function onSelectStart({ data }) {
                 this.userData.isSelecting = true;
             }
 
-            function onSelectEnd() {
+            function onSelectEnd({ data }) {
+                let x = data.gamepad.axes[2]
+                let y = data.gamepad.axes[3]
+                if (x !== 0) {
+                    camera.position.translateX(x)
+                }
+                if (y !== 0) {
+                    camera.position.translateY(y)
+                }
                 this.userData.isSelecting = false;
             }
 
             controller1 = renderer.xr.getController(0);
             controller1.addEventListener('selectstart', onSelectStart);
             controller1.addEventListener('selectend', onSelectEnd);
+
             controller1.addEventListener('connected', function (event) {
                 this.add(buildController(event.data));
             });
@@ -64,6 +73,7 @@ export default defineComponent({
             controller2 = renderer.xr.getController(1);
             controller2.addEventListener('selectstart', onSelectStart);
             controller2.addEventListener('selectend', onSelectEnd);
+
             controller2.addEventListener('connected', function (event) {
                 this.add(buildController(event.data));
             });
@@ -103,25 +113,27 @@ export default defineComponent({
 
         function buildController(data) {
 
+            console.log(data)
+
             let geometry, material;
 
             switch (data.targetRayMode) {
 
                 case 'tracked-pointer':
 
-                    // geometry = new THREE.BufferGeometry();
-                    // geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1], 3));
-                    // geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
+                    geometry = new THREE.BufferGeometry();
+                    geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1], 3));
+                    geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
 
-                    // material = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending });
+                    material = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending });
 
-                    // return new THREE.Line(geometry, material);
+                    return new THREE.Line(geometry, material);
 
                 case 'gaze':
 
-                    // geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, - 1);
-                    // material = new THREE.MeshBasicMaterial({ opacity: 0.5, transparent: true });
-                    // return new THREE.Mesh(geometry, material);
+                // geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, - 1);
+                // material = new THREE.MeshBasicMaterial({ opacity: 0.5, transparent: true });
+                // return new THREE.Mesh(geometry, material);
 
             }
 
@@ -155,12 +167,13 @@ export default defineComponent({
         }
 
         function animate() {
-
             renderer.setAnimationLoop(render);
 
         }
 
         function render() {
+
+            console.log(1)
 
             handleController(controller1);
             handleController(controller2);
