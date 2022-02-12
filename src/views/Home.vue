@@ -17,12 +17,6 @@ export default defineComponent({
         let controller1, controller2;
         let controllerGrip1, controllerGrip2;
 
-        let room;
-
-        let count = 0;
-        const radius = 0.08;
-        let normal = new THREE.Vector3();
-        const relativeVelocity = new THREE.Vector3();
         const clock = new THREE.Clock();
 
         async function init() {
