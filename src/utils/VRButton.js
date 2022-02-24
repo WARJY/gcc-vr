@@ -1,33 +1,33 @@
 class VRButton {
 
-	static createButton( renderer, options ) {
+	static createButton(renderer, callback, options) {
 
-		if ( options ) {
+		if (options) {
 
-			console.error( 'THREE.VRButton: The "options" parameter has been removed. Please set the reference space type via renderer.xr.setReferenceSpaceType() instead.' );
+			console.error('THREE.VRButton: The "options" parameter has been removed. Please set the reference space type via renderer.xr.setReferenceSpaceType() instead.');
 
 		}
 
-		const button = document.createElement( 'button' );
+		const button = document.createElement('button');
 
-		function showEnterVR( /*device*/ ) {
+		function showEnterVR( /*device*/) {
 
 			let currentSession = null;
 
-			async function onSessionStarted( session ) {
+			async function onSessionStarted(session) {
 
-				session.addEventListener( 'end', onSessionEnded );
+				session.addEventListener('end', onSessionEnded);
 
-				await renderer.xr.setSession( session );
+				await renderer.xr.setSession(session);
 				button.textContent = 'EXIT VR';
 
 				currentSession = session;
 
 			}
 
-			function onSessionEnded( /*event*/ ) {
+			function onSessionEnded( /*event*/) {
 
-				currentSession.removeEventListener( 'end', onSessionEnded );
+				currentSession.removeEventListener('end', onSessionEnded);
 
 				button.textContent = 'ENTER VR';
 
@@ -59,7 +59,7 @@ class VRButton {
 
 			button.onclick = function () {
 
-				if ( currentSession === null ) {
+				if (currentSession === null) {
 
 					// WebXR's requestReferenceSpace only works if the corresponding feature
 					// was requested at session creation time. For simplicity, just ask for
@@ -68,8 +68,10 @@ class VRButton {
 					// ('local' is always available for immersive sessions and doesn't need to
 					// be requested separately.)
 
-					const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking', 'layers' ] };
-					navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
+					const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] };
+					navigator.xr.requestSession('immersive-vr', sessionInit).then(onSessionStarted);
+
+					callback()
 
 				} else {
 
@@ -104,7 +106,7 @@ class VRButton {
 
 		}
 
-		function stylizeElement( element ) {
+		function stylizeElement(element) {
 
 			element.style.position = 'absolute';
 			element.style.bottom = '20px';
@@ -120,37 +122,36 @@ class VRButton {
 			element.style.zIndex = '999';
 
 		}
-		
-		console.log(navigator)
-		if ( 'xr' in navigator ) {
+
+		if ('xr' in navigator) {
 
 			button.id = 'VRButton';
 			button.style.display = 'none';
 
-			stylizeElement( button );
+			stylizeElement(button);
 
-			navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
+			navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
 
 				// supported ? showEnterVR() : showWebXRNotFound();
-                showEnterVR()
+				showEnterVR()
 
-				if ( supported && VRButton.xrSessionIsGranted ) {
+				if (supported && VRButton.xrSessionIsGranted) {
 
 					button.click();
 
 				}
 
-			} );
+			});
 
 			return button;
 
 		} else {
 
-			const message = document.createElement( 'a' );
+			const message = document.createElement('a');
 
-			if ( window.isSecureContext === false ) {
+			if (window.isSecureContext === false) {
 
-				message.href = document.location.href.replace( /^http:/, 'https:' );
+				message.href = document.location.href.replace(/^http:/, 'https:');
 				message.innerHTML = 'WEBXR NEEDS HTTPS'; // TODO Improve message
 
 			} else {
@@ -164,7 +165,7 @@ class VRButton {
 			message.style.width = '180px';
 			message.style.textDecoration = 'none';
 
-			stylizeElement( message );
+			stylizeElement(message);
 
 			return message;
 
@@ -176,13 +177,13 @@ class VRButton {
 
 	static registerSessionGrantedListener() {
 
-		if ( 'xr' in navigator ) {
+		if ('xr' in navigator) {
 
-			navigator.xr.addEventListener( 'sessiongranted', () => {
+			navigator.xr.addEventListener('sessiongranted', () => {
 
 				VRButton.xrSessionIsGranted = true;
 
-			} );
+			});
 
 		}
 
