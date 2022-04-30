@@ -762,18 +762,30 @@ export default defineComponent({
         group.add(new LineSegments(geometry, lineMaterial));
         group.add(new Mesh(geometry, meshMaterial));
 
-        const options = chooseFromHash(group);
+        // const options = chooseFromHash(group);
+
+        const data = {
+            radius: 15,
+            widthSegments: 2,
+            heightSegments: 2,
+            phiStart: 0,
+            phiLength: twoPi,
+            thetaStart: 0,
+            thetaLength: Math.PI
+        };
+
+
+        updateGroupGeometry(group, new SphereGeometry(
+            data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength
+        ));
+
+        console.log(group)
 
         scene.add(group);
 
         function render() {
 
             requestAnimationFrame(render);
-
-            if (!options.fixed) {
-
-
-            }
 
             renderer.render(scene, camera);
 

@@ -56,7 +56,7 @@ export default defineComponent({
 
             for (let i = 0; i < uvs1.length; i += 2) {
 
-                uvs1[i] *= 0.5;
+                // uvs1[i] *= 0.5;
 
             }
 
@@ -75,9 +75,10 @@ export default defineComponent({
             const uvs2 = geometry2.attributes.uv.array;
 
             for (let i = 0; i < uvs2.length; i += 2) {
+、
 
-                uvs2[i] *= 0.5;
-                uvs2[i] += 0.5;
+                // uvs2[i] *= 0.5;
+                // uvs2[i] += 0.5;
 
             }
 
