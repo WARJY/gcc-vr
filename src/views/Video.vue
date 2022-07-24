@@ -4,7 +4,9 @@
         <div id="container"></div>
         <video id="video" loop muted crossorigin="anonymous" playsinline style="display:none">
             <!-- <source src="/videos/MaryOculus.mp4" /> -->
-            <source src="/videos/render.mp4" />
+            <!-- <source src="/videos/render.mp4" /> -->
+            <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+            <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm" />
         </video>
     </div>
 </template>
@@ -35,9 +37,6 @@ export default defineComponent({
 
             // video
             const video = document.getElementById('video');
-            for(let key in video){
-                console.log(key)
-            }
             video.play();
 
             scene = new THREE.Scene();
@@ -121,9 +120,7 @@ export default defineComponent({
         }
 
         function render() {
-
             renderer.render(scene, camera);
-
         }
     }
 });

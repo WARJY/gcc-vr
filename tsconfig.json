@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -33,7 +34,7 @@
     "tests/**/*.ts",
     "tests/**/*.tsx",
     "src/three.d.ts"
-  ],
+, "src/views/core/utils.js", "src/views/core/index.js"  ],
   "exclude": [
     "node_modules"
   ]
