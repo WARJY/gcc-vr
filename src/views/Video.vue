@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent } from 'vue';
 import * as THREE from 'three';
 import { VRButton } from '@/utils/VRButton';
 
@@ -51,9 +51,9 @@ export default defineComponent({
 
             const uvs1 = geometry1.attributes.uv.array;
             for (let i = 0; i < uvs1.length; i += 2) {
-                if(uvs1[i] >= 0.49){
+                if (uvs1[i] >= 0.49) {
                     uvs1[i] = -100
-                    uvs1[i+1] = -100
+                    uvs1[i + 1] = -100
                 }
             }
 

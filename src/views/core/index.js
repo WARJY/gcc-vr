@@ -2,20 +2,103 @@ import * as THREE from 'three';
 import { getIntersections } from './utils.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { VRButton } from '@/utils/VRButton';
-import { is } from 'cutil'
+import { is, fontLoader } from './utils.js'
+import { _OBJ_MAP_ } from './class/index'
 
+export * from './class'
 
 let _scene
 
 export let controllerL
 export let controllerR
 
-export const initVRButton = function (renderer) {
+const initBaseFont = async function () {
+    await fontLoader.loadAsync("fonts/helvetiker_regular.typeface.json")
+}
+
+const reciveHoverByController = function (controller, from) {
+    let currentController;
+    if (from === "left") currentController = controllerL
+    if (from === "right") currentController = controllerR
+
+    const intersections = getIntersections(controller, _scene.children);
+    let currentObj = intersections[0]?.object
+    let globalObj = currentController.hover
+
+    if (globalObj && (currentObj?.uuid !== globalObj?.uuid)) {
+        if (is(globalObj?.onLeave) === Function) globalObj?.onLeave({ controller: currentController })
+    }
+
+    if (currentObj && (currentObj?.uuid !== globalObj?.uuid)) {
+        if (is(currentObj?.onHover) === Function) currentObj?.onHover({ controller: currentController })
+    }
+
+    currentController.hover = currentObj
+}
+
+const reciveHoverEvent = function () {
+    reciveHoverByController(controllerL, "left")
+    reciveHoverByController(controllerR, "right")
+}
+
+export const runGlobalEvent = function () {
+    reciveHoverEvent()
+}
+
+const reciveSelectStartByController = function (controller) {
+    const intersections = getIntersections(controller, _scene.children);
+
+    if (intersections.length === 0) return controller.userData.selecte = ""
+    for (let i = 0; i < intersections.length; i++) {
+        let currentObj = intersections[i].object
+        if (currentObj?.name === "MeshUI-Frame") {
+            if (is(currentObj?.onSelectStart) === Function) currentObj?.onSelectStart({ controller })
+            controller.userData.selecte = currentObj?.object
+            break
+        }
+    }
+}
+
+const reciveSelectEndByController = function (controller) {
+    const intersections = getIntersections(controller, _scene.children);
+
+    if (intersections.length === 0) return controller.userData.selecte = ""
+    for (let i = 0; i < intersections.length; i++) {
+        let currentObj = intersections[i].object
+        if (currentObj?.name === "MeshUI-Frame") {
+            if (is(currentObj?.onSelectEnd) === Function) currentObj?.onSelectEnd({ controller })
+            controller.userData.selecte = ""
+            break
+        }
+    }
+}
+
+const onSelectStart = function (event) {
+    const currentController = event.target;
+    reciveSelectStartByController(currentController)
+}
+
+const onSelectEnd = function (event) {
+    const currentController = event.target;
+    reciveSelectEndByController(currentController)
+}
+
+const animate = function (renderer, render) {
+    renderer.setAnimationLoop(() => {
+        render()
+        runGlobalEvent()
+        for (let index in _OBJ_MAP_) {
+            if (_OBJ_MAP_[index].onUpdate && (is(_OBJ_MAP_[index].onUpdate) === Function)) _OBJ_MAP_[index].onUpdate()
+        }
+    });
+}
+
+const initVRButton = function (renderer) {
     let button = VRButton.createButton(renderer)
     document.body.appendChild(button);
 }
 
-export const buildController = function (data) {
+const buildController = function (data) {
     let geometry, material;
 
     switch (data.targetRayMode) {
@@ -38,24 +121,9 @@ export const buildController = function (data) {
     }
 }
 
-export const onSelectStart = function (event) {
-    const currentController = event.target;
-    controller.userData.selected = true;
-    const intersections = getIntersections(currentController, _scene.children);
-    if (intersections.length > 0) {
-        for (let intersection of intersections) {
-            const object = intersection.object;
-            if (object.onSelectStart && is(object.onSelectStart) === Function) object.onSelectStart()
-        }
-    }
-}
-
-export const onSelectEnd = function (event) {
-    const currentController = event.target;
-    currentController.userData.selected = false;
-}
-
 export const initController = function (renderer, scene) {
+    _scene = scene
+
     controllerL = renderer.xr.getController(0);
     controllerL.addEventListener('selectstart', onSelectStart);
     controllerL.addEventListener('selectend', onSelectEnd);
@@ -89,7 +157,7 @@ export const initController = function (renderer, scene) {
     scene.add(controllerGrip2);
 }
 
-export const init = function (renderer, scene) {
+export const init = async function ({ renderer, scene, render }) {
     renderer.xr.enabled = true;
     renderer.xr.setReferenceSpaceType('local');
     _scene = scene
@@ -98,4 +166,7 @@ export const init = function (renderer, scene) {
     initController(renderer, scene)
 
     document.body.appendChild(VRButton.createButton(renderer));
+    animate(renderer, render)
+
+    await initBaseFont()
 }

@@ -1,21 +1,25 @@
 <template>
-    <div id="container">
-        <video id="player" loop muted crossorigin="anonymous" playsinline style="display:none">
-            <!-- <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4" /> -->
-            <!-- <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm" /> -->
-            <source src="/videos/MaryOculus.mp4" />
-        </video>
+    <div>
+        <div id="container">
+            <video id="player" loop muted crossorigin="anonymous" playsinline style="display:none">
+                <!-- <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4" /> -->
+                <!-- <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm" /> -->
+                <source src="/videos/MaryOculus.mp4" />
+            </video>
+        </div>
+        <el-card header="面板" id="panel" class="panel">
+            <el-button type="primary">Primary</el-button>
+        </el-card>
     </div>
 </template>
 
 <script>
-// import 'video.js/dist/video-js.min.css'
 import videojs from 'video.js'
 import * as THREE from 'three';
 import * as Engine from './core/index.js'
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
-let camera, scene, renderer;
+let camera, scene, renderer, htmlRenderer;
 
 const onWindowResize = function () {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -30,7 +34,7 @@ const init = function () {
     camera.layers.enable(1); // render left view when no stereo available
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x101010);
+    scene.background = new THREE.Color(0xdfdfdf);
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -95,10 +99,7 @@ const initVideo = function () {
 
 const render = function () {
     renderer.render(scene, camera);
-}
-
-const animate = function () {
-    renderer.setAnimationLoop(render);
+    htmlRenderer.render(scene, camera);
 }
 
 export default {
@@ -111,17 +112,28 @@ export default {
     computed: {
         /* COMPUTED APPEND FLAG, dont del this line */
     },
-    mounted() {
+    async mounted() {
         init()
-        animate()
         initVideo()
-        Engine.init(renderer, scene)
 
-        const geometry_panel = new RoundedBoxGeometry(10, 2, 1, 6, 1);
-        const material_panel = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
-        const plane = new THREE.Mesh(geometry_panel, material_panel);
-        scene.add(plane);
-        plane.position.set(0, 0, -10)
+        const earthDiv = document.getElementById("panel")
+        const earthLabel = new CSS2DObject(earthDiv);
+        scene.add(earthLabel);
+        earthLabel.position.set(0, 0, -2);
+
+        htmlRenderer = new CSS2DRenderer();
+        htmlRenderer.setSize(window.innerWidth, window.innerHeight);
+        htmlRenderer.domElement.style.position = 'absolute';
+        htmlRenderer.domElement.style.top = '0px';
+        document.body.appendChild(htmlRenderer.domElement);
+
+        // const panel = await Engine.createPanel({
+        //     width: 12, height: 3, depth: 1, segments: 6, radius: 1, color: 0xbfbfbf
+        // })
+        // scene.add(panel)
+        // panel.position.set(0, 0, -10)
+
+        await Engine.init({ renderer, scene, render })
     },
     beforeDestroy() {
         this.player?.dispose();
@@ -138,3 +150,17 @@ export default {
     /* OPTION APPEND FLAG, dont del this line */
 }
 </script>
+
+<style scoped>
+.ui {
+    position: absolute;
+    top: 0;
+    font-size: 100px;
+}
+
+.panel {
+    position: absolute;
+    top: 0;
+    z-index: -1;
+}
+</style>
